@@ -1,5 +1,6 @@
 <?php  
-  include("config.php");     
+  include("config.php");
+  
   include("header.php");
  session_start();
  $transaction_type1 = $_GET['transaction_type1'];
