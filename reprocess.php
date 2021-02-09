@@ -56,11 +56,12 @@ $transaction_type = $get_status_row['transaction_type'];
 </div>
 <div class="col-md-3 text-center">
 <form action="" method="GET">
- <button type="submit" style="text-align: center;margin-left: 300px;margin-top: 60px; background-color:#ADD8E6;"  id="YES" name="YES" class="btn" value="<?php echo $transaction_number ; ?>" > YES </button>
+ 
+ <a href="main.php?transaction_number=<?php echo $transaction_number;?>" class="btn font-weight-bold " style="text-align: center;margin-left: 300px;margin-top: 60px; background-color:#ADD8E6;" id="YES" name="YES" >YES</a>
 </form>  
 </div>               
 <div class="col-md-2 text-center">
-<h4><a href="main.php" style="text-align: left ;margin-left: 2px; margin-top: 60px; background-color:#ADD8E6;"  class="btn "> NO</a>
+<h4><a href="main.php" style="text-align: left ;margin-left: 2px; margin-top: 60px; background-color:#ADD8E6;"  class="btn font-weight-bold"> NO</a>
 </h4>
 </div>
 <div class="col-md-5">

@@ -247,11 +247,11 @@ if($transaction_number != ""){
         ?>
 
 
-  <div class="container-fluid">
+  <div class="container-fluid ">
    <form action="" method="GET">
        <table class="table">
       
-       <div class="form-group row" style="margin-left: 150px;">
+       <div class="form-group row justify-content-center">
 	    
 		<div class="col-xs-2 px-2">
            <label class="font-weight-bold" for="from_date">From Date</label>
@@ -309,19 +309,13 @@ if($transaction_number != ""){
 	  <div class="col-xs-2 px-2">
         <label class="font-weight-bold" for="transaction_number">Transaction Number</label>
         <input type="text" name="transaction_number" id="transaction_number" value="<?php if(isset($transaction_number)){echo $transaction_number;}?>" class="form-control border-dark">
-      </div>
-
-	  
-	  </div>
+      </div>  
     
-    
-    <div class="form-group row" style="margin-left: 500px;">
-
-    <div class="col-xs-2">
+      <div class="col-xs-2">
       
 	  
-	  <input type="submit" style="margin-left: 50px;margin-top: 30px; background-color:#ADD8E6;"  id="search" name="search" class="btn font-weight-bold " value="Search">
-	  <input type="submit" style="margin-left: 30px;margin-top: 30px; background-color:#ADD8E6;"  id="download" name="download" class="btn font-weight-bold" value="Export">
+	  <input type="submit" style="margin-left: 30px; margin-top: 30px; background-color:#ADD8E6;"  id="search" name="search" class="btn font-weight-bold " value="Search">
+	  <input type="submit" style="margin-left: 10px;margin-top: 30px; background-color:#ADD8E6;"  id="download" name="download" class="btn font-weight-bold" value="Export">
 	  
     </div>  
    </div>

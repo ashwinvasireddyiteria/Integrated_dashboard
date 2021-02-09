@@ -87,7 +87,7 @@
                         <b>Copyright &copy; 2020 Iteria.us</b>
                     </div>
                     <div class="col-sm-6 text-right">
-                        <a class="navbar-brand" href="./"><img src="images/IteriaLogo.png" alt="Logo" style="max-width: 100px;"></a>
+                        <img src="images/IteriaLogo.png" alt="Logo" style="max-width: 100px;">
                     </div>
                 </div>
             </div>
