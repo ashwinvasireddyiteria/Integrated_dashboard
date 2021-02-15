@@ -7,6 +7,9 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 $data = json_decode(file_get_contents('php://input'), true);
 
 $transaction_number  = $data["transaction_number"];
+$error_msg1 = $data["error_msg1"];
+
+
 
 $check = mysqli_query($conn, "select * from Integrated_dashboard where transaction_number ='". $transaction_number ."'");
 $result = mysqli_num_rows($check);
@@ -41,7 +44,7 @@ if($result > 0){
 					transaction_status18 =	'".$data["transaction_status18"]."',
 					transaction_status19 =	'".$data["transaction_status19"]."',
 					transaction_status20 =	'".$data["transaction_status20"]."',
-					error_msg1 =	'".$data["error_msg1"]."',
+					error_msg1 =	'".$error_msg1 ."',
 					error_msg2 =	'".$data["error_msg2"]."',
 					error_msg3 =	'".$data["error_msg3"]."',
 					error_msg4 =	'".$data["error_msg4"]."',
@@ -208,7 +211,7 @@ else{
 					'".$data["transaction_status18"]."',
 					'".$data["transaction_status19"]."',
 					'".$data["transaction_status20"]."',
-					'".$data["error_msg1"]."',
+					'".$error_msg1."',
 					'".$data["error_msg2"]."',
 					'".$data["error_msg3"]."',
 					'".$data["error_msg4"]."',
