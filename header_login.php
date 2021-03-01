@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="assets/css/cs-skin-elastic.css">
     <link rel="stylesheet" href="assets/css/lib/datatable/dataTables.bootstrap.min.css">
     <!--<link rel="stylesheet" href="assets/css/style.css">-->
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800' rel='stylesheet' type='text/css'>
  
   
@@ -31,11 +31,6 @@
             background-color: lightblue; 
         } 
 		
-	body {   
-       margin:0; padding:0; overflow-x:hidden; }
-    .container{ width:50%; }	
-	
-   
     .footer {
    position: fixed;
    left: 0;
@@ -43,45 +38,22 @@
    width: 100%;
    text-align: center;
    }
+</style>
 
-    .table {
-	border-width : thick;
-	border-color : #A6A6A6;
-	}
-	
-	
-		 
-     </style>
 
-  </head>
-  <body>
-  <nav class="navbar navbar-expand-lg">
-       <div class="container-fluid">
-          <div class="navbar-header">
-          <a class="navbar-brand" href="index.php"><img src="images/IteriaLogo.png" alt="Logo" style="max-width: 140px;"></a>
-          </div>
-		  
-		  <div class="page-header float-center">
-                            <div class="page-title">
-                                <h2>INTEGRATED DASHBOARD</h2>
-                            </div>
-                        </div>
-     
-   <ul class="nav navbar-nav navbar-right">
 
-      <li class="dropdown" style="margin-right: 50px;">
-         <a class="dropdown-toggle text-dark" data-toggle="dropdown" href="#"><i class="fa fa-user">  My Profile <span class="caret"></span></i></a>
-           <ul class="dropdown-menu text-center" style="width: 10% ">
-              <li style="font-size: 16px"><a href="#">Profile</a></li>
-			  <div class="dropdown-divider"></div>
-              <li style="font-size: 16px"><a href="admin.php">Admin</a></li>
-			  <div class="dropdown-divider"></div>
-			  <li style="font-size: 16px"><a href="logout.php">Logout</a></li>
-            </ul>
-       </li>
-   </ul>
-   </div>
-   </nav>
+<nav class="navbar navbar-expand-sm">
+<div class="row">
+  <div class="column">
+   <a class="navbar-brand" href="./"><img>
+    <img src="images/IteriaLogo.png" alt="Logo" style="width:140px;">
+   </a>
+ </div>
+  <div class="column" style="margin-left:240px; clear:both">
+   <h2> INTEGRATED DASHBOARD <h2>
+  </div>
+ </div> 		 
+</nav>
 
    
    <footer class="site-footer"> 
@@ -96,15 +68,7 @@
                     </div>
                 </div>
             </div>
-        </footer> 
+   </footer> 
   
-
-
-     <!-- Scripts -->
-     <script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.4/dist/umd/popper.min.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/jquery-match-height@0.7.2/dist/jquery.matchHeight.min.js"></script>
-    
- </body>
+ </head>
 </html>

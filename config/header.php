@@ -72,11 +72,11 @@
       <li class="dropdown" style="margin-right: 50px;">
          <a class="dropdown-toggle text-dark" data-toggle="dropdown" href="#"><i class="fa fa-user">  My Profile <span class="caret"></span></i></a>
            <ul class="dropdown-menu text-center" style="width: 10% ">
-              <li style="font-size: 16px"><a href="">Profile</a></li>
+              <li style="font-size: 16px"><a href="#">Profile</a></li>
 			  <div class="dropdown-divider"></div>
-              <li style="font-size: 16px"><a href="">Admin</a></li>
+              <li style="font-size: 16px"><a href="../admin.php">Admin</a></li>
 			  <div class="dropdown-divider"></div>
-			  <li style="font-size: 16px"><a href="">Logout</a></li>
+			  <li style="font-size: 16px"><a href="../logout.php">Logout</a></li>
             </ul>
        </li>
    </ul>

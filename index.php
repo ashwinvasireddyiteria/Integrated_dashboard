@@ -27,7 +27,8 @@
    $from_date1 = date('Y-m-d');
    $query .= " and transaction_date BETWEEN date_sub('".$from_date1."',interval 30 day) AND '".$from_date1."'   group by status order by number desc";  }  
   If(!empty($from_date1)){
-   $query .= " and transaction_date BETWEEN date_sub('".$from_date1."',interval ".$duration1." day) AND '".$from_date1."'   group by status order by number desc";  }
+   $query .= " and transaction_date BETWEEN date_sub('".$from_date1."',interval ".$duration1." day) AND '".$from_date1."'   ";  }
+   $query .= " group by status order by number desc";
    $result = mysqli_query($conn, $query);
  
  
@@ -295,12 +296,12 @@ while($priority_low_fetch = mysqli_fetch_assoc($priority_low)){
 	<div class="col-xs-2 px-2" style="width:150px;">
            <label class="font-weight-bold" for="duration1"> Duration</label><br>
 		   <select id="duration1" name="duration1" style="height: 35px; width:140px;" class="form-control border-dark">
-		   <option value = "30"<?php if(isset($duration1)=="30") {echo '30 Days' ;} ?> > 30 Days</option> 
-		   <option value = "45"<?php if(isset($duration1)=="45") {echo '45 Days' ;} ?>> 45 Days</option>
-           <option value = "91"<?php if(isset($duration1)=="91") {echo '3 Months' ;} ?>> 3 Months</option>
-           <option value = "183"<?php if(isset($duration1)=='183') {echo '6 Months' ;} ?>> 6 Months</option>
-           <option value = "274"<?php if(isset($duration1)=='274') {echo '9 Months' ;} ?>> 9 Months</option>
-           <option value = "365"<?php if(isset($duration1)=='365') {echo '1 Year' ;} ?>> 1 Year</option>	 
+		   <option value = "30"<?php echo(isset($duration1) && $duration1=="30")? "selected='selected'" : ""; ?>> 30 Days</option> 
+		   <option value = "45"<?php echo(isset($duration1) && $duration1=="45")? "selected='selected'" : ""; ?>> 45 Days</option>
+           <option value = "91"<?php echo(isset($duration1) && $duration1=="91")? "selected='selected'" : ""; ?>> 3 Months</option>
+           <option value = "183"<?php echo(isset($duration1) && $duration1=="183")? "selected='selected'" : ""; ?>> 6 Months</option>
+           <option value = "274"<?php echo(isset($duration1) && $duration1=="274")? "selected='selected'" : ""; ?>> 9 Months</option>
+           <option value = "365"<?php echo(isset($duration1) && $duration1=="365")? "selected='selected'" : ""; ?>> 1 Year</option>	 
            
 	    </select>
       </div>
@@ -386,12 +387,12 @@ while($priority_low_fetch = mysqli_fetch_assoc($priority_low)){
 	 <div class="col-xs-2 px-2" style="width:150px;">
            <label class="font-weight-bold" for="duration2"> Duration</label><br>
 		   <select id="duration2" name="duration2" style="height: 35px; width:140px;" class="form-control border-dark">
-		   <option value = "30">30 Days</option>
-		   <option value = "45">45 Days</option>
-           <option value = "91">3 Months </option>
-           <option value = "183">6 Months</option>
-           <option value = "274">9 Months</option>
-           <option value = "365">1 Year</option>		
+		   <option value = "30"<?php echo(isset($duration2) && $duration2=="30")? "selected='selected'" : ""; ?>> 30 Days</option> 
+		   <option value = "45"<?php echo(isset($duration2) && $duration2=="45")? "selected='selected'" : ""; ?>> 45 Days</option>
+           <option value = "91"<?php echo(isset($duration2) && $duration2=="91")? "selected='selected'" : ""; ?>> 3 Months</option>
+           <option value = "183"<?php echo(isset($duration2) && $duration2=="183")? "selected='selected'" : ""; ?>> 6 Months</option>
+           <option value = "274"<?php echo(isset($duration2) && $duration2=="274")? "selected='selected'" : ""; ?>> 9 Months</option>
+           <option value = "365"<?php echo(isset($duration2) && $duration2=="365")? "selected='selected'" : ""; ?>> 1 Year</option>	 	
       
 	    </select>
       </div>
