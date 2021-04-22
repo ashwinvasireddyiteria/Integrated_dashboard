@@ -1,8 +1,9 @@
 <?php
 ob_start();
 // Initialize the session
-include "header_login.php";
-include 'config.php'; 
+include("header_login.php");
+include('config.php'); 
+include("fontstyle.php");
 session_start();
 
  
@@ -39,10 +40,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Validate credentials
     if(empty($username_err) && empty($password_err)){
         // Prepare a select statement
-        $sql = "SELECT user_id, user_name, password FROM salesorder_dashboard_users WHERE user_name = ?";
+        $sql = "SELECT user_id, user_name, password FROM Integrated_dashboard_users WHERE status = 'Active' and user_name = ?";
         
         if($stmt = mysqli_prepare($conn, $sql)){
-			echo "connection done";
+			
             // Bind variables to the prepared statement as parameters
             mysqli_stmt_bind_param($stmt, "s", $param_username);
             
@@ -51,17 +52,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-				echo "step1";
+				
                 // Store result
                 mysqli_stmt_store_result($stmt);
                 
                 // Check if username exists, if yes then verify password
                 if(mysqli_stmt_num_rows($stmt) == 1){    
-                 echo "step2";                
+                                
                     // Bind result variables
                     mysqli_stmt_bind_result($stmt, $user_id ,$user_name, $hashed_password);
                     if(mysqli_stmt_fetch($stmt)){
-						 echo "step3";
+						 
                         if(password_verify($password, $hashed_password)){
                             // Password is correct, so start a new session
 							
@@ -99,30 +100,38 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 }
 ?>
 <style>
- body{ font: 14px sans-serif; }
-        .wrapper{ width: 350px; padding: 20px; }	
+ <!-- body{ font: 14px sans-serif; } -->
+ .wrapper{ 
+  width: 350px; 		
+  padding: 20px; 
+  left: 43%;
+  position: absolute; 
+}		
 </style>
 <!DOCTYPE html>
-<body style="alignment: center">
+<body>
+
+<div style="alignment: center">
     <div class="wrapper">
-        <h2>Login</h2>
-        <p>Please fill in your credentials to login.</p>
+        <h2 class="font">Login</h2>
+        <p class="font">Please fill in your credentials to login.</p>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
+            <div class="font form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
                 <label>Username</label>
-                <input type="text" name="user_name" class="form-control" value="<?php echo $username; ?>">
+                <input type="text" name="user_name" class="font form-control" value="<?php echo $username; ?>">
                 <span class="help-block"><?php echo $username_err; ?></span>
             </div>    
-            <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
+            <div class="font form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
                 <label>Password</label>
                 <input type="password" name="password" class="form-control">
                 <span class="help-block"><?php echo $password_err; ?></span>
             </div>
             <div class="form-group">
-                <input type="submit" class="btn btn-lg font-weight-bold" style="background-color:#ADD8E6;" value="Login">
+                <input type="submit" class="btn btn-lg font-weight-bold" style="" value="Login">
             </div>
-            
+            <p><a href="enter_email.php">Forgot password?</a></p>
         </form>
-    </div>    
+    </div>  
+</div>	
 </body>
 

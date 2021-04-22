@@ -1,3 +1,8 @@
+<?php
+include('session.php');
+include('fontstyle.php');
+?>
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -6,6 +11,8 @@
     <title>Integrated Dashboard </title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="expires" content="Sun, 01 Jan 2014 00:00:00 GMT"/>
+    <meta http-equiv="pragma" content="no-cache" />		
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
@@ -19,29 +26,39 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.2.0/css/flag-icon.min.css">
-    <link rel="stylesheet" href="assets/css/cs-skin-elastic.css">
-    <link rel="stylesheet" href="assets/css/lib/datatable/dataTables.bootstrap.min.css">
-    <!--<link rel="stylesheet" href="assets/css/style.css">-->
-
+    <link rel="stylesheet" href="../assets/css/cs-skin-elastic.css">
+    <link rel="stylesheet" href="../assets/css/lib/datatable/dataTables.bootstrap.min.css">
+	
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800' rel='stylesheet' type='text/css'>
- 
+ <?php
+if (isset($_GET["user_id"])) {
+
+?>
+  <?php
+	}
+	?>
   
     <style>
-  .navbar { 
-            background-color: lightblue; 
+    .navbar { 
+            background-color: #F5FFFA; 
         } 
 		
-	body {   
+	html{
+			position: relative;
+			min-height: 100%;
+		}
+		
+	body { 
+       min-height: 100%;  
        margin:0; padding:0; overflow-x:hidden; }
-    .container{ width:50%; }	
+    .container{ width:auto; }	
 	
    
-    .footer {
-   position: fixed;
-   left: 0;
+  .footer {
+   position: absolute;
+   left: 0px;
    bottom: 0;
    width: 100%;
-   text-align: center;
    }
 
     .table {
@@ -49,31 +66,61 @@
 	border-color : #A6A6A6;
 	}
 	
+    	
+	.h:hover{
+		color: #e65c00 !important;
+	}
 	
-		 
-     </style>
+	#box{
+	width: 300px;
+	height: 100px;
+	overflow: hidden;
+	background: #f1f1f1;
+	box-shadow: 0 0 20px black;
+	border-radius: 8px;
+	position: absolute;
+	top: 23%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999;
+	padding: 10px;
+	text-align: center;
+    }
+
+    #box h6{
+	color: #FF0000;
+    }
+
+   .close{
+	color: white;
+	padding: 10px
+	cursor: pointer;
+	background: #3498db;
+	display: inline-block;
+    }
+	
+</style>
 
   </head>
   <body>
   <nav class="navbar navbar-expand-lg">
        <div class="container-fluid">
           <div class="navbar-header">
-          <a class="navbar-brand" href="../index.php"><img src="../images/IteriaLogo.png" alt="Logo" style="max-width: 140px;"></a>
+          <a class="navbar-brand" href="../index.php"><img src="../images/new_logo.jpg" alt="Logo" style="max-width: 140px;"></a>
           </div>
-		  
-		  <div class="page-header float-center">
+		 <div class="page-header float-center">
                             <div class="page-title">
-                                <h2>INTEGRATED DASHBOARD</h2>
+                                <a class="navbar-brand" href="../index.php"><img src="../images/idea_logo.png" alt="Logo" style="max-width: 180px;"></a>
                             </div>
                         </div>
      
    <ul class="nav navbar-nav navbar-right">
 
-      <li class="dropdown" style="margin-right: 50px;">
-         <a class="dropdown-toggle text-dark" data-toggle="dropdown" href="#"><i class="fa fa-user">  My Profile <span class="caret"></span></i></a>
-           <ul class="dropdown-menu text-center" style="width: 10% ">
-              <li style="font-size: 16px"><a href="#">Profile</a></li>
-			  <div class="dropdown-divider"></div>
+      <li class="font dropdown" style="margin-right: 50px;">
+         <a class="h dropdown-toggle font-weight-bold" style="color: #000080;" data-toggle="dropdown" href="#"><b> My Profile </b><span class="caret"></span></a>
+           <ul class="font dropdown-menu text-center" style="width: 10%; ">
+              <li style="font-size: 16px;"><a href="../profile.php">Profile</a></li>
+			  <div class="font dropdown-divider"></div>
               <li style="font-size: 16px"><a href="../admin.php">Admin</a></li>
 			  <div class="dropdown-divider"></div>
 			  <li style="font-size: 16px"><a href="../logout.php">Logout</a></li>
@@ -82,19 +129,18 @@
    </ul>
    </div>
    </nav>
-
+ 
    
-   <footer class="site-footer"> 
-            <div class="footer-inner fixed-bottom bg-white">
+   <footer class="footer"> 
                 <div class="row">
-                    <div class="col-sm-6">
-                        <br>
-                        <b>Copyright &copy; 2020 Iteria.us</b>
+				 <div class="col-xs-2 px-2">
+				 </div>
+                    <div class="col-sm-4">
+                        <b>Copyright &copy; 2020 iteria.us</b>
                     </div>
-                    <div class="col-sm-6 text-right">
-                        <img src="../images/IteriaLogo.png" alt="Logo" style="max-width: 100px;">
+                    <div class="col-sm-7 text-right">
+                        <img src="../images/IteriaLogo.png" alt="Logo" style="max-width: 100px; margin-right:-80px;margin-top: -15px">
                     </div>
-                </div>
             </div>
         </footer> 
   

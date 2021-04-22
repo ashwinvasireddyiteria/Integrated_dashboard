@@ -1,7 +1,50 @@
 <?php  
   include("config.php");
   include("header.php");
+  include("fontstyle.php");
   session_start();
+  
+  // Menu and Page code validations //
+
+$user_id = $_SESSION['user_id'];
+$query_username = mysqli_query($conn, "SELECT * FROM  Integrated_dashboard_users WHERE user_id = '". $user_id ."' "); 
+$fetch_username = mysqli_fetch_assoc($query_username);
+$user_name = $fetch_username['user_name'];
+$query_menu_validation = "SELECT su.user_name, su.role_id, sr.role_name, sp.menu_code, sp.page_code, sp.privilege 
+FROM Integrated_dashboard_user_roles su, Integrated_dashboard_roles sr ,Integrated_dashboard_role_permissions sp 
+where sr.role_id = su.role_id and su.role_id = sp.role_id and su.status ='Active' and sp.privilege = 'Yes' and su.user_name = '". $user_name ."' ";
+$run_menu_validation = mysqli_query($conn,$query_menu_validation);
+while($fetch_menu_validation = mysqli_fetch_assoc($run_menu_validation)){
+	$i++;
+	$menu_validation[$i]['menu_code'] = $fetch_menu_validation['menu_code'];
+	$menu_validation[$i]['page_code'] = $fetch_menu_validation['page_code'];
+	$menu_validation[$i]['privilege'] = $fetch_menu_validation['privilege'];
+};
+function search($array, $key, $value) { 
+   
+
+    $arrIt = new RecursiveArrayIterator($array); 
+   
+
+    $it = new RecursiveIteratorIterator($arrIt); 
+   
+    foreach ($it as $sub) { 
+   
+      
+        $subArray = $it->getSubIterator(); 
+   
+        if ($subArray[$key] === $value) { 
+            $result[] = iterator_to_array($subArray); 
+         } 
+    } 
+    return $result; 
+} 
+
+$error_priority_search_button = search($menu_validation, 'menu_code', 'ERROR_PRIORITY_SEARCH'); 
+$error_priority_update_button = search($menu_validation, 'menu_code', 'ERROR_PRIORITY_UPDATE');
+// Menu and Page code validations ends here //
+
+  
   $transaction_type= $_GET['transaction_type'];
  IF(isset($_GET['search'])){
 	$transaction_type= $_GET['transaction_type'];
@@ -667,7 +710,7 @@ if(isset($_GET['update'])){
 		$error_msg50 = '4';
 	}
 	
-	$update_high_error = "update salesorder_dashboard_error_priority set 
+	$update_high_error = "update Integrated_dashboard_error_priority set 
 							error_type1 = if(".$error_msg1." = '1', 'error_msg1', NULL),
 							error_type2 = if(".$error_msg2." = '1', 'error_msg2', NULL),
 							error_type3 = if(".$error_msg3." = '1', 'error_msg3', NULL),
@@ -721,7 +764,7 @@ if(isset($_GET['update'])){
 							where transaction_type = '".$transaction_type."' and priority = 'high' ";
 	$update_high_query = mysqli_query($conn,$update_high_error);
 	
-	$update_meduim_error = "update salesorder_dashboard_error_priority set 
+	$update_meduim_error = "update Integrated_dashboard_error_priority set 
 							error_type1 = if(".$error_msg1." = '2', 'error_msg1', NULL),
 							error_type2 = if(".$error_msg2." = '2', 'error_msg2', NULL),
 							error_type3 = if(".$error_msg3." = '2', 'error_msg3', NULL),
@@ -774,7 +817,7 @@ if(isset($_GET['update'])){
 							error_type50 = if(".$error_msg50." = '2', 'error_msg50', NULL)
 							where transaction_type = '".$transaction_type."' and priority = 'medium' ";
 	$update_meduim_query = mysqli_query($conn,$update_meduim_error);
-	$update_low_error = "update salesorder_dashboard_error_priority set 
+	$update_low_error = "update Integrated_dashboard_error_priority set 
 						error_type1 = if(".$error_msg1." = '3', 'error_msg1', NULL),
 							error_type2 = if(".$error_msg2." = '3', 'error_msg2', NULL),
 							error_type3 = if(".$error_msg3." = '3', 'error_msg3', NULL),
@@ -831,10 +874,12 @@ if($update_low_query || $update_meduim_query || $update_high_query){
 	$Success = 'Successfully updated';
 }
 if(isset($Success)){
-	echo "<script type='text/javascript'>
-	window.alert('$Success');
-	window.location.href='error_priority.php?transaction_type=$transaction_type&search=Search';
-	</script>";
+	?>
+	   <div id="box" class="font">
+	      <a href="error_priority.php?transaction_type=<?php echo $transaction_type;?>&search=Search" onclick="pop()" class="close"><i style="solid" class="fa fa-window-close"></i></a>
+          <h6 class="justify-content-center" style="margin-top: 20px;">Successfully Updated</h6>
+       </div>
+    <?php
 }
 }
 
@@ -849,13 +894,13 @@ if(isset($Success)){
 		
 	    <div class="form-group row justify-content-center">
 		<div class="col-xs-2" style="width:150px; margin-left:10px;">
-	 <label class="font-weight-bold" for="transaction_type">Transaction</label>	
-	 <select id="transaction_type" name="transaction_type" style="height:35px;  width: 140px;" class="form-control border-dark" >
+	 <label class="font font-weight-bold" for="transaction_type">Transaction</label>	
+	 <select id="transaction_type" name="transaction_type" style="height:35px;  width: 140px;" class="font form-control border-dark" >
 	 
 
                                             
                                             <?php
-                                            $sql = "SELECT distinct transaction_type FROM Integrated_dashboard order by id asc";
+                                            $sql = "SELECT distinct transaction_type FROM Integrated_dashboard_transactiontype order by id asc";
                                             $result = mysqli_query($conn, $sql);
 
                                             if (mysqli_num_rows($result) > 0) {
@@ -880,15 +925,20 @@ if(isset($Success)){
   
 	 
 	<div class="col-xs-2 px-2"> 
-	     <input type="submit" style="margin-top: 30px; height:35px; margin-left: 10px; width: 100px; background-color:#ADD8E6;"  id="search" name="search" class="btn text-center font-weight-bold" value="Search">
+	<?php if(!empty($error_priority_search_button)): ?>
+	     <input type="submit" style="margin-top: 30px; height:35px; margin-left: 10px; width: 100px; "  id="search" name="search" class="btn text-center font-weight-bold" value="Search">
+	<?php endif; ?>
 	</div>
     
 	 <div class="col-xs-2 px-2">
-   <a href="config_page.php" class="btn font-weight-bold" style=" margin-top: 30px; margin-left: 20px;  height:35px; width: 100px; background-color:#ADD8E6;" >Back</a>
+   <a href="config_page.php" class="btn font-weight-bold text-center" style=" margin-top: 30px; margin-left: 20px;  height:35px; width: 100px;" >Back</a>
    </div>
 
   <div class="col-xs-2 px-2"> 
-	     <input type="submit" style="margin-top: 30px; height:35px; margin-left: 20px; width: 100px; background-color:#ADD8E6;"  id="update" name="update" class="btn text-center font-weight-bold" value="Update">
+  <?php if(!empty($error_priority_update_button)): ?>
+
+	     <input type="submit" style="margin-top: 30px; height:35px; margin-left: 20px; width: 100px; "  id="update" name="update" class="btn text-center font-weight-bold" value="Update">
+	<?php endif; ?>
 	</div>
  </div>
 
@@ -898,18 +948,18 @@ if(isset($Success)){
                       
                                <table id="bootstrap-data-table" style="position: relative;" class="table table-striped table-bordered">
                               
-                                    <thead style="background-color:#ADD8E6">
+                                    <thead class="thread">
                                         <tr>
                                             <th>Error Type</th>
-                                            <th> <div class="checkbox" ><label>High</label>
-											          <input type="checkbox" class="check float-right" id="high" >
+                                            <th><div class="checkbox">High
+											          <input type="checkbox" class="check" id="high" >
                                                  </div></th>
   
-                                            <th><div class="checkbox"><label>Medium</label>
-											          <input type="checkbox" class="check1 float-right" id="medium" >
+                                            <th><div class="checkbox">Medium
+											          <input type="checkbox" class="check1" id="medium" >
                                                  </div></th>
-                                            <th><div class="checkbox"><label>Low</label>
-											          <input type="checkbox" class="check2 float-right" id="low" >
+                                            <th><div class="checkbox">Low
+											          <input type="checkbox" class="check2" id="low" >
                                                  </div></th>
                                             
                                         </tr>
@@ -1289,6 +1339,18 @@ $("#medium").click(function () {
 $("#low").click(function () {
     $(".check2").prop('checked', $(this).prop('checked'));
 });
+
+
+var c = 0;
+function pop(){
+	if(c == 0){
+		document.getElementById("box").style.display = "block";
+		c = 1;
+	}else{
+		document.getElementById("box").style.display = "none";
+		c = 0;
+	}
+}
 </script>
 <br> <br>
 </body>

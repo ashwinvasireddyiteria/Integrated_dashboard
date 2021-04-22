@@ -1,7 +1,48 @@
 <?php  
   include("config.php");
   include("header.php");
+  include("fontstyle.php");
   session_start();
+  
+  // Menu and Page code validations //
+
+$user_id = $_SESSION['user_id'];
+$query_username = mysqli_query($conn, "SELECT * FROM  Integrated_dashboard_users WHERE user_id = '". $user_id ."' "); 
+$fetch_username = mysqli_fetch_assoc($query_username);
+$user_name = $fetch_username['user_name'];
+$query_menu_validation = "SELECT su.user_name, su.role_id, sr.role_name, sp.menu_code, sp.page_code, sp.privilege 
+FROM Integrated_dashboard_user_roles su, Integrated_dashboard_roles sr ,Integrated_dashboard_role_permissions sp 
+where sr.role_id = su.role_id and su.role_id = sp.role_id and su.status ='Active' and sp.privilege = 'Yes' and su.user_name = '". $user_name ."' ";
+$run_menu_validation = mysqli_query($conn,$query_menu_validation);
+while($fetch_menu_validation = mysqli_fetch_assoc($run_menu_validation)){
+	$i++;
+	$menu_validation[$i]['menu_code'] = $fetch_menu_validation['menu_code'];
+	$menu_validation[$i]['page_code'] = $fetch_menu_validation['page_code'];
+	$menu_validation[$i]['privilege'] = $fetch_menu_validation['privilege'];
+};
+function search($array, $key, $value) { 
+   
+
+    $arrIt = new RecursiveArrayIterator($array); 
+   
+
+    $it = new RecursiveIteratorIterator($arrIt); 
+   
+    foreach ($it as $sub) { 
+   
+      
+        $subArray = $it->getSubIterator(); 
+   
+        if ($subArray[$key] === $value) { 
+            $result[] = iterator_to_array($subArray); 
+         } 
+    } 
+    return $result; 
+} 
+$custom_field_update_button = search($menu_validation, 'menu_code', 'CUSTOM_FIELDS_UPDATE'); 
+// Menu and Page code validations ends here //
+
+  
 	$transaction_type = $_GET['transaction_type'];
 $get_custom_fields = mysqli_query($conn,"select * from Integrated_dashboard_transactiontype where transaction_type = '".$transaction_type."'");	
 $fetch_custom_fields = mysqli_fetch_assoc($get_custom_fields);
@@ -109,7 +150,7 @@ if(isset($_GET['Update']))	{
 	$custom_field49 = $_GET['custom_field49'];
 	$custom_field50 = $_GET['custom_field50'];
 
-$update_custom_fields = "UPDATE salesorder_dashboard_transactiontype set
+$update_custom_fields = "UPDATE Integrated_dashboard_transactiontype set
 					custom_field1  =	    NULLIF('".$custom_field1."',''),
 					custom_field2  =	    NULLIF('".$custom_field2."',''),
 					custom_field3  =	    NULLIF('".$custom_field3."',''),
@@ -164,9 +205,12 @@ $update_custom_fields = "UPDATE salesorder_dashboard_transactiontype set
 $update_query = mysqli_query($conn,$update_custom_fields);
 $display_error = "successfully updated";
 	if($update_query){
-	echo "<script type='text/javascript'>
-	window.alert('$display_error');
-	</script>";
+	?>
+	   <div id="box" class="font">
+	      <a href="custom_fields.php" onclick="pop()" class="close"><i style="solid" class="fa fa-window-close"></i></a>
+          <h6 class="justify-content-center" style="margin-top: 20px;">Successfully Updated</h6>
+       </div>
+    <?php
 	}
 }
 
@@ -176,14 +220,14 @@ $display_error = "successfully updated";
 <body>
 <form action="" method="GET">
 <br><br>
-<div class="page-header text-center">
+<div class="font page-header text-center">
 <h3>Transaction Type : <?php echo $transaction_type ?></h3>
 <input type="hidden" name="transaction_type" value="<?php echo $transaction_type ?>">
 </div>
 <br>
 <table class="table">
-      
-     <div class="form-group row  justify-content-center">
+     <div class="font"> 
+     <div class="font form-group row  justify-content-center">
         <label class="col-form-label font-weight-bold px-4" for="custom_field1">Custom Field1</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -191,7 +235,7 @@ $display_error = "successfully updated";
         </div>
 	 </div> 
 	 
-     <div class="form-group row justify-content-center">
+     <div class="font form-group row justify-content-center">
         <label class="col-form-label font-weight-bold px-4" for="custom_field1">Custom Field2</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 	   <div class="col-sm-3">
@@ -199,7 +243,7 @@ $display_error = "successfully updated";
        </div>
      </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label font-weight-bold px-4" for="custom_field3">Custom Field3</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -207,7 +251,7 @@ $display_error = "successfully updated";
  </div>
  </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label font-weight-bold px-4" for="custom_field4">Custom Field4</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -215,7 +259,7 @@ $display_error = "successfully updated";
  </div>
  </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label font-weight-bold px-4" for="custom_field5">Custom Field5</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -223,7 +267,7 @@ $display_error = "successfully updated";
  </div>
  </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label font-weight-bold px-4" for="custom_field6">Custom Field6</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -231,7 +275,7 @@ $display_error = "successfully updated";
  </div>
  </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label font-weight-bold px-4" for="custom_field7">Custom Field7</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -239,7 +283,7 @@ $display_error = "successfully updated";
  </div>
  </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label px-4 font-weight-bold" for="custom_field8">Custom Field8</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -247,7 +291,7 @@ $display_error = "successfully updated";
  </div>
  </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label px-4 font-weight-bold" for="custom_field9">Custom Field9</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -255,7 +299,7 @@ $display_error = "successfully updated";
  </div>
  </div>
  
- <div class="form-group row justify-content-center">
+ <div class="font form-group row justify-content-center">
         <label class="col-form-label px-4 font-weight-bold" for="custom_field10">Custom Field10</label>
 		<label class="col-form-label font-weight-bold px-4" for="varchar45">VARCHAR(45)</label>
 		<div class="col-sm-3">
@@ -582,16 +626,37 @@ $display_error = "successfully updated";
         <input type="text" name="custom_field50" id="custom_field50" value="<?php if(isset($custom_field50)){echo $custom_field50;}?>" class="form-control border-dark">
  </div>
  </div>
- 
+ </div>
 
 <div class="form-group row justify-content-center">
-<input type="submit" style="margin-left: 30px; margin-top: 30px; background-color:#ADD8E6;"  id="Update" name="Update" class="btn font-weight-bold " value="Update">
+<div class="col-xs-2 px-2">
+<?php if(!empty($custom_field_update_button)): ?>
+
+<input type="submit" style="margin-left: 30px; height: 40px; width: 100px;; margin-top: 30px;"  id="Update" name="Update" class="btn font-weight-bold text-center" value="Update">
+<?php endif; ?>
 </div>
+<div class="col-xs-2 px-2">
+   <a href="transaction.php" class="btn font-weight-bold float-right text-center" style="margin-top: 30px; margin-left: 20px; height: 40px; width: 100px;" >Back</a>
+  </div>
+  </div>
 </form>
 	
 </div>
    </table>
 
-
 <br><br>
+
+<script>
+var c = 0;
+function pop(){
+	if(c == 0){
+		document.getElementById("box").style.display = "block";
+		c = 1;
+	}else{
+		document.getElementById("box").style.display = "none";
+		c = 0;
+	}
+}
+
+</script>	
 </body>

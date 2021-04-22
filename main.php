@@ -1,34 +1,99 @@
 <?php
 include("config.php");
+include("header.php");
+include("fontstyle.php");
 require_once "vendor/autoload.php";
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder( new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder() );
 
  session_start();
+ 
+ // Menu and Page code validations //
+
+$user_id = $_SESSION['user_id'];
+$query_username = mysqli_query($conn, "SELECT * FROM  Integrated_dashboard_users WHERE user_id = '". $user_id ."' "); 
+$fetch_username = mysqli_fetch_assoc($query_username);
+$user_name = $fetch_username['user_name'];
+$query_menu_validation = "SELECT su.user_name, su.role_id, sr.role_name, sp.menu_code, sp.page_code, sp.privilege 
+FROM Integrated_dashboard_user_roles su, Integrated_dashboard_roles sr ,Integrated_dashboard_role_permissions sp 
+where sr.role_id = su.role_id and su.role_id = sp.role_id and su.status ='Active' and sp.privilege = 'Yes' and su.user_name = '". $user_name ."' ";
+$run_menu_validation = mysqli_query($conn,$query_menu_validation);
+while($fetch_menu_validation = mysqli_fetch_assoc($run_menu_validation)){
+	$i++;
+	$menu_validation[$i]['menu_code'] = $fetch_menu_validation['menu_code'];
+	$menu_validation[$i]['page_code'] = $fetch_menu_validation['page_code'];
+	$menu_validation[$i]['privilege'] = $fetch_menu_validation['privilege'];
+};
+function search($array, $key, $value) { 
+   
+
+    $arrIt = new RecursiveArrayIterator($array); 
+   
+
+    $it = new RecursiveIteratorIterator($arrIt); 
+   
+    foreach ($it as $sub) { 
+   
+      
+        $subArray = $it->getSubIterator(); 
+   
+        if ($subArray[$key] === $value) { 
+            $result[] = iterator_to_array($subArray); 
+         } 
+    } 
+    return $result; 
+} 
+$main_search_button = search($menu_validation, 'menu_code', 'MAIN_SEARCH'); 
+$main_export_button = search($menu_validation, 'menu_code', 'MAIN_EXPORT');
+$main_reprocess_button = search($menu_validation, 'menu_code', 'MAIN_REPROCESS');
+// Menu and Page code validations ends here //
+
+
 $transaction_type = $_GET['transaction_type'];
 $transaction_number = $_GET['transaction_number'];
-$status = "SELECT * FROM Integrated_dashboard where id is not null";
+$error_priority = $_GET['error_priority'];
+$duration1 = $_GET['duration1'];
+$from_date = $_GET['from_date1'];
+$status = $_GET['status'];
+$to_date = $_GET['to_date'];
+
+$status1 = "SELECT * FROM Integrated_dashboard where id is not null";
 if ($transaction_type != ""){
-$status .= " and transaction_type = '". $transaction_type."'";
+$status1 .= " and transaction_type = '". $transaction_type."'";
 }
 if ($transaction_number != ""){
-$status .= " and transaction_number = '". $transaction_number."'";
+$status1 .= " and transaction_number = '". $transaction_number."'";
 }
-$get_status_sql = mysqli_query($conn,$status);
+if ($error_priority!= ""){
+$status1 .= " and error_priority = '". $error_priority ."' ";	
+}
+if ($status != ""){
+$status1 .= " and status = '". $status ."' ";	
+}
+if($from_date !="" && $duration1 !=""){
+   $status1 .= " and transaction_date >= date_sub('".$from_date."',interval ".$duration1." day) AND transaction_date <= '".$from_date."' ";
+}
+if ($from_date !="" && $to_date !=""){
+   $status1 .= " and transaction_date >= '". $from_date ."' AND transaction_date <= '". $to_date ."'  ";  
+   }
+
+
+$get_status_sql = mysqli_query($conn,$status1);
+
 
 
 		if(isset($_GET['download'])){
           $status = $_GET['status'];
          $transaction_type = $_GET['transaction_type'];
          $transaction_number = $_GET['transaction_number'];       
-		 $from_date=$_GET['from_date'];
-		 $to_date=$_GET['to_date'];
+		 $from_date= $_GET['from_date'];
+		 $to_date= $_GET['to_date'];
 	$download = "select * from Integrated_dashboard ";
 	$download .="WHERE id is not null ";
 
-if ($from_date !="" && $to_date !=""){
-	$download .="and transaction_date BETWEEN '". $from_date ."' AND '". $to_date ."'";
+if($from_date !="" && $to_date !=""){
+	$download .="and transaction_date < '". $from_date ."' AND transaction_date > '". $to_date ."' ";
 }	
 if($status != ""){
 	$download .=" and status like '". $status ."%'";
@@ -208,30 +273,63 @@ header('Pragma: public');
 $writer->save('php://output');
     exit();
 		 }
-include("header.php");
+
 ?>
 
 <!doctype html>
 <body>
-
-
-
        <!--  Table search bar start-->
 <div  style="border:1px solid #999;padding:5px;background-color: #e6e7e9">
     <div class="col-xs-6"> 
     <! Addding New search  bar>
   <?php
+         
          if(isset($_GET['search'])){
          $status = $_GET['status'];
          $transaction_type = $_GET['transaction_type'];
          $transaction_number = $_GET['transaction_number'];       
 		 $from_date=$_GET['from_date'];
 		 $to_date=$_GET['to_date'];
+		 
 	$search = "select * from Integrated_dashboard ";
 	$search .="WHERE id is not null ";
-
-if ($from_date !="" && $to_date !=""){
-	$search .="and transaction_date BETWEEN '". $from_date ."' AND '". $to_date ."'";
+	
+if($from_date > $to_date){
+	$error1 = "From Date cannot be greater than To Date";
+}if(isset($error1)){
+	?>
+	   <div id="box" class="font">
+	      <a href="main.php" onclick="pop()" class="close"><i style="solid" class="fa fa-window-close"></i></a>
+          <h6 class="justify-content-center" style="margin-top: 20px;">From Date cannot be greater than To Date</h6>
+       </div>
+    <?php
+}  
+if($from_date == NULL){
+	$search .="and transaction_date >= NULL AND transaction_date <= '". $to_date ."' ";
+	$error = "Please select From Date";
+}
+if(isset($error)){
+	?>
+	   <div id="box" class="font">
+	      <a href="main.php" onclick="pop()" class="close"><i style="solid" class="fa fa-window-close"></i></a>
+          <h6 class="justify-content-center" style="margin-top: 20px;">Please select From Date</h6>
+       </div>
+    <?php
+}
+if($to_date == NULL){
+	$search .="and transaction_date >= '". $from_date ."' AND transaction_date <= NULL ";
+	$error2 = "Please select To Date";
+}
+if(isset($error2)){
+	?>
+	   <div id="box" class="font">
+	      <a href="main.php" onclick="pop()" class="close"><i style="solid" class="fa fa-window-close"></i></a>
+          <h6 class="justify-content-center" style="margin-top: 20px;">Please select To Date</h6>
+       </div>
+    <?php
+}	
+if (!empty($from_date) && !empty($to_date)){
+	$search .="and transaction_date >= '". $from_date ."' AND transaction_date <= '". $to_date ."' ";
 }	
 if($status != ""){
 	$search .=" and status like '". $status ."%'";
@@ -242,16 +340,17 @@ if($transaction_type != ""){
 if($transaction_number != ""){
 	$search .=" and transaction_number like '". $transaction_number ."%'";
          }
+		 
 	$get_status_sql = mysqli_query($conn, $search);
          }
-        ?>
+?>
 
 
   <div class="container-fluid ">
    <form action="" method="GET">
        <table class="table">
       
-       <div class="form-group row justify-content-center">
+       <div class="font form-group row justify-content-center">
 	    
 		<div class="col-xs-2 px-2">
            <label class="font-weight-bold" for="from_date">From Date</label>
@@ -287,7 +386,7 @@ if($transaction_number != ""){
 	  
 	   <div class="col-xs-2 px-2" style="width:200px;">
         <label class="font-weight-bold" for="transaction_type">Transaction Type</label>
-       <select id="transaction_type" name="transaction_type" style="height: 37px; width:180px;" class="form-control border-dark">                                           
+       <select id="transaction_type" name="transaction_type" style="height: 37px; width:180px;" class="form-control border-dark text-center">                                           
 			<option value = "">	</option>
 			<?php
              $sql = "SELECT distinct transaction_type FROM Integrated_dashboard ";
@@ -308,15 +407,19 @@ if($transaction_number != ""){
 	  
 	  <div class="col-xs-2 px-2">
         <label class="font-weight-bold" for="transaction_number">Transaction Number</label>
-        <input type="text" name="transaction_number" id="transaction_number" value="<?php if(isset($transaction_number)){echo $transaction_number;}?>" class="form-control border-dark">
+        <input type="text" name="transaction_number" id="transaction_number" value="<?php if(isset($transaction_number)){echo $transaction_number;}?>" class="form-control border-dark text-center">
       </div>  
     
       <div class="col-xs-2">
       
-	  
-	  <input type="submit" style="margin-left: 30px; margin-top: 30px; background-color:#ADD8E6;"  id="search" name="search" class="btn font-weight-bold " value="Search">
-	  <input type="submit" style="margin-left: 10px;margin-top: 30px; background-color:#ADD8E6;"  id="download" name="download" class="btn font-weight-bold" value="Export">
-	  
+	 <?php if(!empty($main_search_button)): ?> 
+	  <input type="submit" style="margin-left: 10px; margin-top: 30px;height: 37px; width: 100px;"  id="search" name="search" class="btn font-weight-bold text-center" value="Search">
+	 <?php endif; ?> 
+	 <?php if(!empty($main_export_button)): ?> 
+	  <input type="submit" style="margin-left: 10px;margin-top: 30px; height: 37px; width: 100px;"  id="download" name="download" class="btn font-weight-bold text-center" value="Export">
+	 <?php endif; ?> 
+	  <a href="index.php" style="margin-left: 10px; margin-top: 30px; height: 37px; width: 100px;"  id="back" name="back" class="btn font-weight-bold	text-center">Back</a>
+	  <a href="main.php" style="margin-left: 10px; margin-top: 30px; height: 37px; width: 100px;"  id="reset" name="reset" class="btn font-weight-bold text-center">Reset</a>
     </div>  
    </div>
    </table>
@@ -340,7 +443,7 @@ if($transaction_number != ""){
                             </div> -->
                             <div class="card-body">
                              <table id="bootstrap-data-table" style="position: relative;" class="table table-striped table-bordered" width="100%">
-                           <thead style="background-color:#ADD8E6">
+                           <thead class="thread" style="">
                             <tr>
                             <th scope="col">Transaction Date</th>
 							<th scope="col">Transaction Type</th>
@@ -355,21 +458,25 @@ if($transaction_number != ""){
                                   <?php
 
                                          while($get_status_row = mysqli_fetch_assoc($get_status_sql)){
+											 $trans_date = $get_status_row['transaction_date'];
+											 $trans_date1 = date("m-d-Y", strtotime($trans_date));
                                         ?>
 
 										
 										
                                         <tr>
-                                            <td><?php echo $get_status_row['transaction_date'];  ?></td>
+                                            <td><?php echo  $trans_date1 ;  ?></td>
 											<td><?php echo $get_status_row['transaction_type'];  ?></td>											
-                                            <td><a href="order_status.php?transaction_number=<?php echo $get_status_row['transaction_number'];?>">
+                                            <td><a href="order_status.php?transaction_number=<?php echo $get_status_row['transaction_number'];?>& transaction_type=<?php echo $transaction_type;?>& from_date=<?php echo $from_date;?>& duration1=<?php echo $duration1 ;?>& to_date=<?php echo $to_date ;?>">
 											<?php echo $get_status_row['transaction_number'];  ?></a></td>								                                                                                
 											<td><?php echo $get_status_row['status'];  ?></td>
 											<td>
+											<?php if(!empty($main_reprocess_button)): ?> 
 											<?php if(strpos($get_status_row['status'],'Success') === false): ?>
 											<a href="reprocess.php?transaction_number=<?php echo $get_status_row['transaction_number'];?>" 
-											   class="btn font-weight-bold" style=" background-color:#ADD8E6">Reprocess
+											   class="btn font-weight-bold" style="">Reprocess
 											</a>
+											<?php endif; ?>
 											<?php endif; ?>
 											</td>
                                         </tr>
@@ -406,28 +513,33 @@ if($transaction_number != ""){
      <script src="assets/js/lib/data-table/buttons.print.min.js"></script>
      <script src="assets/js/lib/data-table/buttons.colVis.min.js"></script>
      <script src="assets/js/init/datatables-init.js"></script>
+	 
  
      <script type="text/javascript">
+	  
       
  $(document).ready(function() {
   var table = $('#bootstrap-data-table-export').DataTable({
-       dom: 'lrtip'
+  dom: 'lrtip',
+	  "language": {
+                "Search": "type somthing.. ",
+            }
+
     });	  
-      
-    
+ 
+ 
     $('#table-filter').on('change', function(){
         var selected_status = $(this).children("option:selected").val();
         window.location.href='main.php?val="'+selected_status+'"';
        table.search(this.value).draw();   
     });
-});
+ });
 
         $(document).ready(function(){
              $(function() {
                 $("#table-filter").val("<?php if($val==null){echo 0;}else{echo $val;} ?>");
              });
-        });
-
+	});
    </script>
    
   </body>

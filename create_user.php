@@ -2,18 +2,59 @@
 
   include('config.php');
   include("header.php");
+  include("fontstyle.php");
+  session_start();
+// Menu and Page code validations //
 
-// Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST") {
+$user_id = $_SESSION['user_id'];
+$query_username = mysqli_query($conn, "SELECT * FROM  Integrated_dashboard_users WHERE user_id = '". $user_id ."' "); 
+$fetch_username = mysqli_fetch_assoc($query_username);
+$user_name = $fetch_username['user_name'];
+$query_menu_validation = "SELECT su.user_name, su.role_id, sr.role_name, sp.menu_code, sp.page_code, sp.privilege 
+FROM Integrated_dashboard_user_roles su, Integrated_dashboard_roles sr ,Integrated_dashboard_role_permissions sp 
+where sr.role_id = su.role_id and su.role_id = sp.role_id and su.status ='Active' and sp.privilege = 'Yes' and su.user_name = '". $user_name ."' ";
+$run_menu_validation = mysqli_query($conn,$query_menu_validation);
+while($fetch_menu_validation = mysqli_fetch_assoc($run_menu_validation)){
+	$i++;
+	$menu_validation[$i]['menu_code'] = $fetch_menu_validation['menu_code'];
+	$menu_validation[$i]['page_code'] = $fetch_menu_validation['page_code'];
+	$menu_validation[$i]['privilege'] = $fetch_menu_validation['privilege'];
+};
+function search($array, $key, $value) { 
+   
+
+    $arrIt = new RecursiveArrayIterator($array); 
+   
+
+    $it = new RecursiveIteratorIterator($arrIt); 
+   
+    foreach ($it as $sub) { 
+   
+      
+        $subArray = $it->getSubIterator(); 
+   
+        if ($subArray[$key] === $value) { 
+            $result[] = iterator_to_array($subArray); 
+         } 
+    } 
+    return $result; 
+} 
+$create_usersave_button = search($menu_validation, 'menu_code', 'CREATE_USER_SAVE');
+$create_usercancel_button = search($menu_validation, 'menu_code', 'CREATE_USER_CANCEL'); 
+// Menu and Page code validations ends here //
+
+// Processing form data when form is submitted //
+if(isset($_POST['submit'])) {
     
     $emailerror = '';
     $emailid = $_POST['email'];
-
-    $sql1 = "SELECT * FROM salesorder_dashboard_users WHERE email ='$emailid' ";
+	
+    $sql1 = "SELECT * FROM Integrated_dashboard_users WHERE email ='$emailid' ";
     $result1 = mysqli_query($conn, $sql1);
 
     if (mysqli_num_rows($result1) > 0) {
-        $emailerror = "email already exists";
+        $emailerror = "User Already Exist";
+		
     } else {
        
         // Define variables
@@ -23,30 +64,32 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 		$mname = $_POST['middle_name'];
         $phone = $_POST['phone'];
         $uname = $_POST['email'];
-		$password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+		
         $jobtitle = $_POST['job_title'];
 		
 		
-       $sql = "INSERT INTO salesorder_dashboard_users (user_name,first_name, last_name, middle_name,email,password,job_title,contact_number1) 
-                      VALUES ('$uname','$fname','$lname','$mname','$email','$password','$jobtitle','$phone')";
+       $sql = "INSERT INTO Integrated_dashboard_users (user_name,first_name, last_name, middle_name,email,job_title,contact_number1, status, creation_date) 
+                      VALUES ('$uname','$fname','$lname','$mname','$email','$jobtitle','$phone', 'Active' , CURDATE())";
 
        $result= mysqli_query($conn, $sql);
 		If($result){
-			$Success = "Successfully Inserted";
+			$mailer = "mailer";
 		}
-		if(isset($Success)){
+		if(isset($mailer)){
 	echo "<script type='text/javascript'>
-	window.alert('$Success');
-	window.location.href='admin1.php';
+	window.location.href='createuser_mailer.php?mailer=$email';
 	</script>";
        }
 		else {
 			$display_error1 =" Connection error";
 		}
 		if(isset($display_error1)){
-	echo "<script type='text/javascript'>
-	window.alert('$display_error1');
-	</script>";
+	?>
+	   <div id="box" class="font">
+	      <a href='create_user.php' onclick="pop()" class="close"><i style="solid" class="fa fa-window-close"></i></a>
+          <h6 class="justify-content-center" style="margin-top: 20px;">Connection error</h6>
+       </div>
+    <?php
     }
 	}
 }	
@@ -57,7 +100,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <style>
     
 	/* Set a style for the submit/register button */
-  .registerbtn {
+  .btn {
             
             border: none;
             
@@ -67,7 +110,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
       } 
 	
    body {   
-       margin:0; padding:0; overflow-y:hidden; }
+       margin:0; padding:0; }
     .container{ width:50%; }	
 	
 	
@@ -80,7 +123,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <br>
 <div class="col-sm col-md col-lg">
            <div class="page-header text-center">
-                <div class="page-title">
+                <div class="font page-title">
                       <h4> Create New User</h4>
                 </div>
             </div>
@@ -95,9 +138,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="form-group row justify-content-center">
 	   	    	
 		<div class="col-xs-4 px-4">
-		<label for="email"  style="width: 250px;height: auto;"><b>Email<span style="color: #f44336">*</span></b></label>    
-		<input type="text" class="form-control border-dark" placeholder="Enter email" name="email" id="email">
-		<span class="help-block"><?php echo $emailerror; ?></span>
+		<label for="email" class="font" style="width: 250px;height: auto;"><b>Email<span style="color: #f44336">*</span></b></label>    
+		<input type="text" class="font form-control border-dark" placeholder="Enter Email" name="email" id="email" onkeyup="populateUsername();" >
+		<span class="error_form" id="email_error_message" style="color: #f44336"></span>
+		<span class="help-block" style="color: #f44336"><?php echo $emailerror; ?></span>
         </div>
 			
 		<div class="col-xs-4 px-4">
@@ -114,16 +158,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 		</div>
 			
 		<div class="col-xs-4 px-4">
-		<label for="email" style="width: 250px;height: auto;"><b>Job Title</b></label>    
-		<input type="text" class="form-control border-dark" placeholder="Enter job_title" name="job_title" id="job_title">
+		<label for="job_title" class="font" style="width: 250px;height: auto;"><b>Job Title</b></label>    
+		<input type="text" class="font form-control border-dark" placeholder="Enter Job Title" name="job_title" id="job_title">
 		</div>				
 	</div>	
 	
 	<div class="form-group row justify-content-center">
 	  		
 		<div class="col-xs-2 px-4">
-		<label for="email" style="width: 250px;height: auto;"><b>First Name<span style="color: #f44336">*</span></b></label>   
-		<input type="text" class="form-control border-dark" placeholder="Enter first_name" name="first_name" id="first_name">
+		<label for="first_name" class="font" style="width: 250px;height: auto;"><b>First Name<span style="color: #f44336">*</span></b></label>   
+		<input type="text" class="font form-control border-dark" placeholder="Enter First Name" name="first_name" id="first_name">
+		<span class="error_form" id="fname_error_message" style="color: #f44336"></span>
 		</div>
 				
 		<div class="col-xs-4 px-4">
@@ -140,8 +185,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 		</div>
 				
 		<div class="col-xs-2 px-4">
-		<label for="email" style="width: 250px;height: auto;"><b>Middle Name</b></label>    
-		<input type="text" class="form-control border-dark" placeholder="Enter middle_name" name="middle_name" id="middle_name">
+		<label for="middle_name" class="font" style="width: 250px;height: auto;"><b>Middle Name</b></label>    
+		<input type="text" class="font form-control border-dark" placeholder="Enter Middle Name" name="middle_name" id="middle_name">
 		</div>	
 		
 	</div>	
@@ -149,8 +194,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 	<div class="form-group row justify-content-center">
 	   			
 		<div class="col-xs-2 px-4">
-		<label for="email" style="width: 250px;height: auto"><b>Last Name<span style="color: #f44336">*</span></b></label>    
-		<input type="text" class="form-control border-dark" placeholder="Enter last_name" name="last_name" id="last_name">
+		<label for="last_name" class="font" style="width: 250px;height: auto"><b>Last Name<span style="color: #f44336">*</span></b></label>    
+		<input type="text" class="font form-control border-dark" placeholder="Enter Last Name" name="last_name" id="last_name">
+		<span class="error_form" id="lname_error_message" style="color: #f44336"></span>
 		</div>		
 			
 		<div class="col-xs-4 px-4">
@@ -167,17 +213,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 		</div>
 				
 		<div class="col-xs-2 px-4">
-		<label for="email" style="width: 250px;height: auto;"><b>Phone Number</b></label>    
-		<input type="text" class="form-control border-dark" placeholder="Enter phone_number" onkeypress="return isNumber(event)" pattern="[0-9]*" name="phone" id="phone">
+		<label for="phone" class="font" style="width: 250px;height: auto;"><b>Phone Number</b></label>    
+		<input type="text" class="font form-control border-dark" placeholder="Enter Phone Number" onkeypress="return isNumber(event)" pattern="[0-9]{10}"  maxlength="10"  name="phone" id="phone">
 		</div>	
+		<span class="error_form" id="phone_error_message" style="color: #f44336"></span>
 		
 	</div>
 
     <div class="form-group row justify-content-center">
 	   	    	
-		<div class="col-xs-2 px-4">
-		<label for="email" style="width: 250px;height: auto;"><b>Username<span style="color: #f44336">*</span></b></label>    
-		<input type="text" class="form-control border-dark" placeholder="Enter email" id="email" value="<?php echo $_POST['email']; ?>">
+		<div class="col-xs-2 px-4" style="margin-right: 10px;">
+		<label for="email" class="font" style="width: 250px;height: auto;"><b>Username<span style="color: #f44336">*</span></b></label>    
+		<input type="text" class="font form-control border-dark" readonly placeholder="Enter Email" id="uemail" name="uemail" >
 		</div>
 				
 		<div class="col-xs-4 px-4">
@@ -192,24 +239,37 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 		</div>		
 		<div class="col-xs-4 px-4">
 		</div>
-			
-		<div class="col-xs-2 px-4">
-		<label for="password" style="width: 250px;height: auto"><b>Password<span style="color: #f44336">*</span></b></label>   
-		<input type="password" class="form-control border-dark" placeholder="Enter password" name="password" id="password">
+		<div class="col-xs-4 px-4">
+		</div>		
+		<div class="col-xs-4 px-4">
 		</div>
+		<div class="col-xs-4 px-4">
+		</div>
+		<div class="col-xs-4 px-4">
+		</div>		
+		<div class="col-xs-4 px-4">
+		</div>
+		<div class="col-xs-4 px-4">
+		</div>
+			
+		
 		
 	</div>	
 	
 	<br>
 	<div class="form-group row justify-content-center">
-	     <div class="col-xs-2 px-2">
-		 <a href="admin1.php" class="btn btn-lg font-weight-bold" style="background-color:#ADD8E6;"  name="cancel" id="cancel" role="button"><i class="fa fa-times"><b> Cancel</b></i></a>
+	     <div class="col-xs-2 px-2">		 
+         <?php if(!empty($create_usercancel_button)): ?>
+		 <a href="admin_user.php" class="btn font-weight-bold text-center" style="width: 135px;"  name="cancel" id="cancel" role="button"><b> Cancel</b></a>
+		 <?php endif; ?>
 		 </div>
 		
 		 
 		 <div class="col-xs-2 px-2">
-		 <button type="submit" style="background-color:#ADD8E6;margin-left: 40px;" name="create" id="create" href="#" class="registerbtn btn-lg font-weight-bold" onclick="return validate()"><i class="fa fa-save"><b> Save </b></i></button>
-		</div>
+		 <?php if(!empty($create_usersave_button)): ?>
+		 <button type="submit" style="width: 135px; margin-left: 40px;" name="submit" id="submit" href="#" class="btn font-weight-bold text-center" onclick="return validate()"><b> Save </b></button>
+		 <?php endif; ?>
+		 </div>
 		 
 	</div>	
 
@@ -217,6 +277,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 </div>	
 </form>
+<br>
 </html>
 </body>
 
@@ -239,58 +300,83 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    function checkPassword(str)
-    {
-        var re = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-        return re.test(str);
-    }
+   
     function isNumber(evt) {
         evt = (evt) ? evt : window.event;
         var charCode = (evt.which) ? evt.which : evt.keyCode;
         if(charCode > 31 && (charCode < 48 || charCode > 57)) {
             return false;
         }
+		else {
         return true;
+		}
     }
+    function populateUsername() {
+        document.getElementById('uemail').value = document.getElementById('email').value;
+    }
+
+	function validatePhone(str){
+		var re = /^[0-9]{10}$/;
+		return re.test(str);
+	}
+   
+
 	
-	
-    function validate() {
+   function validate() {
         var email=$('#email').val();
         var fname=$("#first_name").val();
         var lname=$('#last_name').val();
 		var mname=$("#middle_name").val();
-		var uname=$("#email").val();
-        var password=$('#password').val();
+		var uname=$("#uemail").val();
         var phone=$('#phone').val();
+		
+		$("#fname_error_message").hide();	
+	    $("#lname_error_message").hide();
+	    $("#email_error_message").hide();
+	    $("#user_email_error_message").hide();
+	    $("#password_error_message").hide();
+	    $("#phone_error_message").hide();
+	
+	    var error_fname = false;	
+	    var error_lname = false;
+	    var error_email = false;
+	    var error_username = false;
+	    var error_password = false;
+	    var error_phone = false;
         
         if(email===""||email==null)
         {
-            alert('enter Email');
+            $("#email_error_message").html("Enter Email");
+		    $("#email_error_message").show();
+		    $("#email").css("border-bottom", "2px solid #f44336");
+            error_email = true;
             return false;
 		}else if(!validateEmail(email))
         {
-            alert('invalid Email');
+			$("#email_error_message").html("Email Format ***@example.com");
+		    $("#email_error_message").show();
+		    $("#email").css("border-bottom", "2px solid #f44336");
+            error_email = true;
             return false;
         }else if(fname===""||fname==null)
         {
-            alert('enter first_name.');
+            $("#fname_error_message").html("Enter First name");
+			$("#fname_error_message").show();
+		    $("#first_name").css("border-bottom", "2px solid #f44336");
+            error_fname = true;
             return false;
         }else if(lname===""||lname==null)
         {
-            alert('enter Last_name.');
+            $("#lname_error_message").html("Enter Last name");
+			$("#lname_error_message").show();
+		    $("#last_name").css("border-bottom", "2px solid #f44336");
+            error_lname = true;
             return false;
-        }else if(password==null)
-        {
-            alert('enter password');
-            return false;
-        }else if(!checkPassword(password))
-        {
-            alert('password must contain at-least 1 uppercase,1 lowercase,1 special character and minimum length of 8 characters');
-            return false;
-        }else{
+        }
+		else{
             return true;
         }
-    }
+    }			
 
     function mobileChange() {
         var mobile = $("#phone").val();
@@ -324,38 +410,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    function emailChange() {
-        var mail = $("#email").val().toLocaleLowerCase();
-        if((mail!=null||mail!==undefined)&&validateEmail(mail)) {
-            if (mail.endsWith('iteria.us')) {
-                $.ajax({
-                    url: "/application/mailcheck",
-                    type: "POST",
-                    dataType: "json",
-                    data: {mail: mail},
-                    success: function (data) {
-
-                        if (data['result'] !== 1) {
-
-                        } else {
-                            $("#email").val("");
-                            alert("email already registered..!");
-                            $("#email").focus();
-                        }
-                    },
-                    error: function (data) {
-
-                    }
-                });
-            } else {
-                $('#email').val("");
-                $('#email').focus();
-                alert('Email is not valid')
-            }
-        }
-    }
-
-				
+    var c = 0;
+function pop(){
+	if(c == 0){
+		document.getElementById("box").style.display = "block";
+		c = 1;
+	}else{
+		document.getElementById("box").style.display = "none";
+		c = 0;
+	}
+}
 </script>
 	
 	
